@@ -1,0 +1,88 @@
+config:
+    templatedir: template
+    workroot: ./_workdir
+    keepworkdirs: true
+
+
+usermodules:
+    - [skpar.dftbutils, [get_bs]]
+
+tasks:
+    - set: [[skf/skdef.template.hsd]]
+    - run: ['skgen -o slateratom -t sktwocnt '
+            '-I ../../../freeatoms/_build sktable -d C C', skf]
+    - run: [dftbutils bands, C.dia/hydrostatic-0.00]
+    - get_bs: [C.dia/hydrostatic-0.00/bs, C.dia.hs-0.00,
+               {latticeinfo: {type: 'FCC', param: 3.56208625213847}}]
+    - plot: [plot_bs, ../_plots/bands.hs-0.00, [bands, C.dia.hs-0.00],
+             kvector, queries: [kticklabels]]
+
+objectives:
+    - bands:
+        doc: 'C.dia.hs-0.00: VB'
+        models: 'C.dia.hs-0.00'
+        ref:
+            # This is bandstructure from VASP, transformed so that bands
+            # are columns in the file. Format is:
+            # k-pt_Number Distance  Kx  Ky  Kz  band1(1)  band2(1)...
+            # The advantage of this is that the band with lowest energy
+            # also has the lowest column index.
+            # But for visualisation, bands span horisontally, and SKPAR
+            # treats the bands-type of data as a 2D array where a band
+            # is represented by a ROW in the array.
+            # This is why, we must always transpose bands from dp_bands
+            # or from vasputils, upon loading, and this is here accomplished
+            # by the loader_args: {unpack: True}:
+            # cf. numpy.loadtxt() for details.
+            file: ~/venv-py37/work/C.dia/ref/unpolarised/strains/hydrostatic_strain_0.000/bands.dat
+            loader_args: {unpack: True}
+            process:
+                # indexes and ranges below refer to file, not array,
+                # i.e. independent of 'unpack' loader argument
+                rm_columns: [[1,5]]      # remove Nr Dist Kx Ky Kz columns
+        options:
+            # Indexes below refer to the resulting 2D array after loading,
+            # transposing, and application of the rm_rows/rm_columns above.
+            # Fortran-style index-bounds of bands to use
+            use_ref: [[1, 4]]
+            use_model: [[1, 4]]
+            # Fortran-style index of band-index and k-point-index,
+            align_ref: [4, max]
+            # or a function (e.g. min, max) instead of k-point
+            align_model: [4, max]
+            subweights:
+                # NOTABENE:
+                # --------------------------------------------------
+                # Energy values are with respect to the ALIGNEMENT above.
+                # If we want to have the reference  band index as zero,
+                # we would have to do tricks with the range specification
+                # behind the curtain, to allow both positive and negative
+                # band indexes, e.g. [-3, 0], inclusive of either boundary.
+                # Currently this is *not done*, so only standard Fortran
+                # range spec is supported. Therefore, band 1 is always
+                # the lowest lying, and e.g. band 4 is the third above it.
+                # --------------------------------------------------
+                dflt: 1
+                # [[range], subweight] for E-k points in the given energy range
+                values:
+                # notabene:
+                # the range below is with respect to the alignment value
+                    - [[-0.1, 0.], 5.0]
+                # [[range], subweight] of bands indexes; fortran-style
+                bands:
+                  # these affect Light and SO hole masses
+                    - [[2, 3], 1.5]
+                  # emphasize the top VB (affects Heavy hole masses)
+                    - [4 , 2.5]
+        # emphasize the equilibrium structure
+        weight: 3.
+        eval: [rms, relerr]
+
+
+optimisation:
+    algo: PSO
+    options:
+        npart: 2
+        ngen : 1
+    parameters:
+        - R0  :  2.0 5.0

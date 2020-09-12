@@ -1,0 +1,23 @@
+
+set up
+1. chmod +x run-step1.sh
+2. chmod +x run-step2.sh
+(3. sudo apt install -y quantum-espresso)
+(4. wget https://dftbplus.org/fileadmin/DFTBPLUS/public/dftbplus/17.1/dftbplus-17.1.x86_64-linux.tar.xz 
+  tar xf dftbplus-17.1.executables.x86_64-linux.tar.xz 
+  export PATH=$PATH:$HOME/dftbplus-17.1.x86_64-linux/bin)
+
+run (step1)
+1. (prepare and set cif file)
+2. ./run-step1.sh Mo S
+
+run (step2) (test version)
+1. ./run-step2.sh
+2. (prepare Xx-Xx.skf and Yy-Yy.skf in template/skf folder)
+3. (prepare Xx-Yy.template.skf and Yy-Xx.template.skf in template/skf folder)
+  (e.g., "mv Xx-Yy_no_repulsion.skf Xx-Yy.template.skf")
+
+run (step3)
+1. gedit skpar.in.yaml
+  (change npart and ngen)
+2. skpar skpar.in.yaml

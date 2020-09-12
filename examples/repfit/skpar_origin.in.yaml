@@ -1,0 +1,55 @@
+config:
+    templatedir: template
+    workroot: ./_workdir/
+    keepworkdirs: true
+
+usermodules:
+    - [skpar.dftbutils, [get_evol]]
+
+tasks:
+    - set: [[skf/fitpoints.template.dat]]
+    # fit spline repulsive on given points and produce repulsive.dat
+    - run: [skpar_splinerepfit, skf]
+    # add repulsive.dat to 1-2.skf and 2-1.skf
+    - run: ['skpar_addrepulsive -e Xx Yy', skf]
+    # energy-volume calculation in the subfolders 
+    # of MoS2.ml-evol under _workdir/iteration/
+    - run: ['dftbutils evol', XxYy.ml-evol]
+    # get total energy for all calculations in
+    # MoS2.ml-evol subfolders and associate data
+    # with MoS2.ml model
+    - get_evol: [XxYy.ml-evol, XxYy.ml]
+    # which routine to use for plotting, and filename
+    # what to plot -- objective, model name
+    # what to use as abscissa (a query is constructed)
+    - plot: [skparplot, '../plots/etot.vs.strain.pdf',
+             [totalenergy_volume, XxYy.ml],
+             'strain']
+
+objectives:
+    - totalenergy_volume:
+        doc: XxYy.ml Energy-Volume dependence
+        models: XxYy.ml
+        ref:
+            file: refdata/toten-XxYy.ml.dat # ./ is where this .yaml is
+            loader_args:
+                usecols: 0 # Etot[eV]; col[1] is % of equil.lat.const.
+        options:
+            align_ref: 5
+            align_model: 5
+            subweights: [ 2,2, 3,3,3,3,3,3, 2,2,2, 1,1,1,1]
+        eval: [rms, relerr]
+
+
+optimisation:
+    algo: PSO   # particle swarm optimisation
+    options:
+        npart: 200   # number of particles
+        ngen : 200   # number of generations
+    parameters:
+        # how do we choose the range for the spline values?
+        - s1: [0.04, 0.08]
+        - s2: [0.015, 0.04]
+        - s3: [0.01, 0.02]
+        - s4: [0.002, 0.015]
+        - s5: [0, 0.01]

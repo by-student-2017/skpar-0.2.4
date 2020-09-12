@@ -26,7 +26,7 @@
 7. ./install.sh
 
 
-Maybe, Ubuntu 20.04 LTS and Debian 10.0 could do it.
+Maybe, Ubuntu 18.04 LTS, 20.04 LTS and Debian 10.0 could do it.
 
 
 -----

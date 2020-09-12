@@ -11,10 +11,10 @@
 2. sudo apt install -y git
 
 
-3. git clone  https://github.com/by-student-2017/skpar-0.2.4_Ubuntu18.04LTS.git
+3. git clone  https://github.com/by-student-2017/skpar-0.2.4.git
 
 
-4. mv skpar-0.2.4_Ubuntu18.04LTS skpar
+4. mv skpar-0.2.4 skpar
 
 
 5. cd skpar

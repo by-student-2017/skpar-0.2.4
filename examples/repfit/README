@@ -10,6 +10,7 @@ set up
 run (step1)
 1. (prepare and set cif file)
 2. ./run-step1.sh Mo S
+  (or ./run-step1.sh Mo S PSLIB)
 
 run (step2) (test version)
 1. ./run-step2.sh

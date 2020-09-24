@@ -14,7 +14,15 @@ else
   chmod +x vasp2gen
   chmod +x pwscf2force
   #
-  cif2cell *.cif --no-reduce -p pwscf --pwscf-pseudo-PSLibrary-libdr="./potentials" --setup-all --k-resolution=0.2 --pwscf-force=yes --pwscf-stress=yes --pwscf-run-type=scf -o pw.in
+  npot="$3"
+  lnpot="${npot:0:2}"
+  if [ "${lnpot,,}" == "ps" ]; then
+    cif2cell *.cif --no-reduce -p pwscf --pwscf-pseudo-PSLibrary-libdr="./potentials_pslibrary" --setup-all --k-resolution=0.2 --pwscf-force=yes --pwscf-stress=yes --pwscf-run-type=scf -o pw.in
+    cp ./potentials_pslibrary/energy_data_for_isolated_atom_reference ./potentials/energy_data_for_isolated_atom_reference
+  else
+    cif2cell *.cif --no-reduce -p pwscf --pwscf-pseudo-GBRV-libdr="./potentials_gbrv" --setup-all --k-resolution=0.2 --pwscf-force=yes --pwscf-stress=yes --pwscf-run-type=scf -o pw.in
+    cp ./potentials_gbrv/energy_data_for_isolated_atom_reference ./potentials/energy_data_for_isolated_atom_reference
+  fi
   cp pw.scf.in tmp.scf.in
   #sed 2i"  disk_io = \'none\'," tmp.scf.in > pw.scf.in
   #

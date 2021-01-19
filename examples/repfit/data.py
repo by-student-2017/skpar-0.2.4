@@ -17,7 +17,8 @@ subprocess.getoutput("cp common.hsd ./XxYy.ml-evol/")
 subprocess.getoutput("cp dftb_in.hsd ./XxYy.ml-evol/")
 ALC1 = subprocess.getoutput("awk '{if($1==\"A\"){print $3}}' tmp.scf.in")
 #
-vol_list = ["095","096","097","098","099","100","101","102","103","104","105","106","107","108","109"]
+# DeltaCodesDFT: ["094","096","098","100","102","104","106"]
+vol_list = ["094","095","096","097","098","099","100","101","102","103","104","105","106","107","108","109"]
 for vol in vol_list:
     print("--------------------------------")
     print("Vol(%) = ",vol)
